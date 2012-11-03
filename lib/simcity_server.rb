@@ -21,7 +21,7 @@ class SimcityServer
       @map.grid.each do |row|
         row.each do |cell|
           cell.each do |o|
-            objects << { id: o.object_id, x: cell.point.x, y: cell.point.y, type: html_class(o.class) }
+            objects << object_for(o, cell)
           end
         end
       end
@@ -32,10 +32,26 @@ class SimcityServer
   end
 
   def handle_incoming_data(topic, data)
-    @map.cell_at(Map::Point.new(data["x"], data["y"])) << Structure::Road.new(@map)
+    klass = get_class_for(data["type"])
+    @map.cell_at(Map::Point.new(data["x"], data["y"])) << klass.new(@map)
   end
 
   protected
+  def object_for(o, cell)
+    object = { id: o.object_id, x: cell.point.x, y: cell.point.y, type: html_class(o.class) }
+    if o.respond_to?(:powered?)
+      object[:state] = o.powered? ? 'powered' : 'unpowered'
+    end
+    object
+  end
+
+  def get_class_for(klass_string)
+    {
+      'power-plant' => PowerPlant,
+      'road' => Structure::Road,
+      'house' => House
+    }[klass_string]
+  end
 
   def html_class(klass)
     klass.to_s.downcase.gsub(/::/, '-').gsub(/^simcity-/, '')
