@@ -10,6 +10,7 @@ class SimcityServer
     @map.cell_at(Map::Point.new(0,1)) << Structure::Road.new(@map)
     @map.cell_at(Map::Point.new(1,1)) << Structure::Road.new(@map)
     @map.cell_at(Map::Point.new(2,1)) << Structure::Road.new(@map)
+    subscribe('incoming_message', :handle_incoming_data)
     run!
   end
 
@@ -29,6 +30,12 @@ class SimcityServer
       @map.tick
     end
   end
+
+  def handle_incoming_data(topic, data)
+    @map.cell_at(Map::Point.new(data["x"], data["y"])) << Structure::Road.new(@map)
+  end
+
+  protected
 
   def html_class(klass)
     klass.to_s.downcase.gsub(/::/, '-').gsub(/^simcity-/, '')

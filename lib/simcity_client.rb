@@ -6,6 +6,8 @@ class SimcityClient
   def initialize(websocket)
     info "Streaming structures to client"
     @socket = websocket
+    reader = Reader.new(@socket)
+    reader.read!
     subscribe('map', :notify_map)
   end
 
@@ -14,5 +16,26 @@ class SimcityClient
   rescue Reel::SocketError
     info "Simcity client disconnected"
     terminate
+  end
+
+  class Reader
+    include Celluloid
+    include Celluloid::Logger
+    include Celluloid::Notifications
+    def initialize(socket)
+      @socket = socket
+    end
+
+    def read
+      every(1) do
+        message = @socket.read
+        handle_message(message)
+      end
+    end
+
+    def handle_message(data)
+      data = JSON.parse(data)
+      publish 'incoming_message', data
+    end
   end
 end
