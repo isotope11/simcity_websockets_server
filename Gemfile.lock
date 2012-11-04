@@ -19,8 +19,11 @@ GEM
       certified
       http_parser.rb
     http_parser.rb (0.5.3)
+    http_parser.rb (0.5.3-java)
     json (1.7.5)
+    json (1.7.5-java)
     nio4r (0.4.0)
+    nio4r (0.4.0-java)
     rack (1.4.1)
     reel (0.2.0)
       celluloid-io (>= 0.8.0)
@@ -33,6 +36,7 @@ GEM
       http
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES

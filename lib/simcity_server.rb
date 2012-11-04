@@ -5,17 +5,12 @@ class SimcityServer
 
   def initialize
     @map = Map.new(10, 10)
-    # Put a power plant at the top left
-    @map.cell_at(Map::Point.new(0, 2)) << PowerPlant.new(@map)
-    @map.cell_at(Map::Point.new(0,1)) << Structure::Road.new(@map)
-    @map.cell_at(Map::Point.new(1,1)) << Structure::Road.new(@map)
-    @map.cell_at(Map::Point.new(2,1)) << Structure::Road.new(@map)
     subscribe('incoming_message', :handle_incoming_data)
     run!
   end
 
   def run
-    every(1) do
+    every(0.1) do
       # render every object in every map cell
       objects = []
       @map.grid.each do |row|
@@ -40,16 +35,21 @@ class SimcityServer
   def object_for(o, cell)
     object = { id: o.object_id, x: cell.point.x, y: cell.point.y, type: html_class(o.class) }
     if o.respond_to?(:powered?)
-      object[:state] = o.powered? ? 'powered' : 'unpowered'
+      object[:powered] = o.powered?
+    end
+    if o.respond_to?(:watered?)
+      object[:watered] = o.watered?
     end
     object
   end
 
   def get_class_for(klass_string)
     {
-      'power-plant' => PowerPlant,
+      'powerplant' => PowerPlant,
       'road' => Structure::Road,
-      'house' => House
+      'house' => House,
+      'waterpump' => WaterPump,
+      'garbagedump' => GarbageDump
     }[klass_string]
   end
 
