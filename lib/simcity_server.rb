@@ -4,7 +4,7 @@ class SimcityServer
   include Simcity
 
   def initialize
-    @map = Map.new(20, 20)
+    @session = SimcityApp::Session.new(20, 20)
     subscribe('incoming_message', :handle_incoming_data)
     run!
   end
@@ -13,7 +13,7 @@ class SimcityServer
     every(0.1) do
       # render every object in every map cell
       objects = []
-      @map.grid.each do |row|
+      @session.map.grid.each do |row|
         row.each do |cell|
           cell.each_pair do |type, array|
             array.each do |o|
@@ -24,19 +24,21 @@ class SimcityServer
       end
       STDOUT.puts objects.count
       publish 'map', objects
-      @map.tick
+      publish 'cash', @session.cash.to_s('F')
+      @session.tick
     end
   end
 
   def handle_incoming_data(topic, data)
     STDOUT.puts data.inspect
-    cell = @map.cell_at(Map::Point.new(data["x"], data["y"])) 
+    point = Map::Point.new(data["x"], data["y"])
     case data['action']
     when 'add-object'
       klass = get_class_for(data["type"])
-      cell << klass.new(@map)
+      @session.insert_object(point, klass)
     when 'remove-object'
       cell.clear
+      @session.clear
     end
   end
 

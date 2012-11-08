@@ -9,10 +9,19 @@ class SimcityClient
     reader = Reader.new(@socket)
     reader.read!
     subscribe('map', :notify_map)
+    subscribe('cash', :notify_cash)
+  end
+
+  def notify_cash(topic, cash)
+    write('cash', cash)
   end
 
   def notify_map(topic, map)
-    @socket << JSON.generate(map)
+    write('map', map)
+  end
+
+  def write(action, payload)
+    @socket << JSON.generate({ action: action, payload: payload })
   rescue Reel::SocketError
     info "Simcity client disconnected"
     terminate

@@ -4,6 +4,12 @@ PATH
     simcity (0.0.1)
       celluloid
 
+PATH
+  remote: /home/jadams/ruby/simcity_app
+  specs:
+    simcity_app (0.0.1)
+      simcity
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -43,3 +49,4 @@ DEPENDENCIES
   json
   reel
   simcity!
+  simcity_app!

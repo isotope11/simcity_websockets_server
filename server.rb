@@ -3,6 +3,7 @@ require 'bundler/setup'
 require 'reel'
 require 'json'
 require 'simcity'
+require 'simcity_app'
 
 require_relative './lib/simcity_server'
 require_relative './lib/simcity_client'
