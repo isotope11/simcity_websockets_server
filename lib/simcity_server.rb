@@ -4,7 +4,7 @@ class SimcityServer
   include Simcity
 
   def initialize
-    @map = Map.new(10, 10)
+    @map = Map.new(20, 20)
     subscribe('incoming_message', :handle_incoming_data)
     run!
   end
@@ -15,20 +15,29 @@ class SimcityServer
       objects = []
       @map.grid.each do |row|
         row.each do |cell|
-          cell.each do |o|
-            objects << object_for(o, cell)
+          cell.each_pair do |type, array|
+            array.each do |o|
+              objects << object_for(o, cell)
+            end
           end
         end
       end
-      STDOUT.puts objects.inspect
+      STDOUT.puts objects.count
       publish 'map', objects
       @map.tick
     end
   end
 
   def handle_incoming_data(topic, data)
-    klass = get_class_for(data["type"])
-    @map.cell_at(Map::Point.new(data["x"], data["y"])) << klass.new(@map)
+    STDOUT.puts data.inspect
+    cell = @map.cell_at(Map::Point.new(data["x"], data["y"])) 
+    case data['action']
+    when 'add-object'
+      klass = get_class_for(data["type"])
+      cell << klass.new(@map)
+    when 'remove-object'
+      cell.clear
+    end
   end
 
   protected
